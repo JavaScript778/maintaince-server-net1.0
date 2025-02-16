@@ -1,0 +1,85 @@
+﻿@page
+@model maintaince_server_net.Pages.BaseLog.IndexModel
+@{
+    ViewData["Title"] = "基础服日志管理";
+}
+
+<div class="container-fluid">
+    <!-- 过滤条件 -->
+    <div class="row mb-3">
+        <div class="col-6">
+            <select id="serverFilter" class="form-control">
+                <option value="">全部服务器</option>
+            </select>
+        </div>
+        <div class="col-6 text-right">
+            <button id="btnRefresh" class="btn btn-secondary">刷新</button>
+        </div>
+    </div>
+
+    <!-- 数据表格 -->
+    <table class="table table-bordered table-hover">
+        <thead class="thead-light">
+            <tr>
+                <th>序号</th>
+                <th>服务器名称</th>
+                <th>更新包</th>
+                <th>结果</th>
+                <th>时间</th>
+            </tr>
+        </thead>
+        <tbody id="dataBody"></tbody>
+    </table>
+
+    <!-- 分页控件 -->
+    <div class="d-flex justify-content-between align-items-center">
+        <button id="btnPrev" class="btn btn-sm btn-outline-secondary"><< 上一页</button>
+        <span id="currentPage" class="text-muted">第 1 页</span>
+        <button id="btnNext" class="btn btn-sm btn-outline-secondary">下一页 >></button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentPage = 1;
+
+        // 加载服务器列表
+        function loadServers() {
+            $.get('/api/base_server/all', function(servers) {
+                servers.forEach(server => {
+                    $('#serverFilter').append(`<option value="${server.id}">${server.name}</option>`);
+                });
+            });
+        }
+
+        // 加载日志数据
+        function loadData(page) {
+            const serverId = $('#serverFilter').val();
+            $.get(`/api/base_log/list/${page}?serverId=${serverId}`, function(res) {
+                $('#dataBody').empty();
+                res.data.forEach((item, index) => {
+                    $('#dataBody').append(`
+                        <tr>
+                            <td>${(page - 1) * 10 + index + 1}</td>
+                            <td>${item.serverName}</td>
+                            <td>${item.packageName}</td>
+                            <td><span class="badge ${item.updateResult === 1 ? 'badge-success' : 'badge-danger'}">${item.updateResult === 1 ? '成功' : '失败'}</span></td>
+                            <td>${new Date(item.createTime).toLocaleString()}</td>
+                        </tr>
+                    `);
+                });
+                $('#currentPage').text(`第 ${page} 页`);
+            });
+        }
+
+        // 初始化
+        $(document).ready(function() {
+            loadServers();
+            loadData(1);
+            $('#serverFilter').change(() => loadData(1));
+            $('#btnRefresh').click(() => loadData(1));
+            $('#btnPrev').click(() => { if (currentPage > 1) loadData(--currentPage); });
+            $('#btnNext').click(() => loadData(++currentPage));
+        });
+    </script>
+}

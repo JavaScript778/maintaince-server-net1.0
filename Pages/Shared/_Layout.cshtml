@@ -1,0 +1,111 @@
+﻿@{
+    var user = Context.Session.GetString("User");
+}
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - 运维管理系统</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+
+    <!-- 自定义 CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
+
+    <style>
+        /* 使页面布局正常工作 */
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #header {
+            height: 60px;
+            background-color: #007bff;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding-left: 20px;
+            font-size: 20px;
+        }
+
+        #main {
+            display: flex;
+            flex: 1;
+            margin-top: 0px; /* 防止导航栏遮挡 */
+        }
+
+        #sidebar {
+            width: 200px;
+            background-color: #343a40;
+            color: white;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+            #sidebar a {
+                color: white;
+                display: block;
+                padding: 10px;
+                text-decoration: none;
+            }
+
+                #sidebar a:hover {
+                    background-color: #495057;
+                }
+
+        #content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 5px 15px;
+            border: none;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+
+        <div id="main">
+            <!-- 左侧菜单 -->
+            <div id="sidebar">
+                <h5>菜单</h5>
+                <a href="/BaseZip">📦 基础服更新包</a>
+                <a href="/BaseLog">📜 基础服日志</a>
+                <a href="/BaseServer">💻 基础服管理</a>
+                <a href="/ChatZip">📦 聊天服更新包</a>
+                <a href="/ChatLog">📜 聊天服日志</a>
+                <a href="/ChatServer">💬 聊天服管理</a>
+                <hr>
+                <a href="/Login">🚪 退出登录</a>
+            </div>
+
+            <!-- 右侧内容区 -->
+            <div id="content">
+                @RenderBody()
+            </div>
+        </div>
+    
+
+    <!-- jQuery 和 Bootstrap JS -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
+
+    <!-- 自定义 JS -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

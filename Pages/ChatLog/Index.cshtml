@@ -1,0 +1,37 @@
+﻿@page
+@model maintaince_server_net.Pages.ChatLog.IndexModel
+@{
+    ViewData["Title"] = "聊天服日志管理";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-6">
+            <select id="serverFilter" class="form-control" asp-items="Model.Servers">
+                <option value="">全部服务器</option>
+            </select>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="thead-light">
+            <tr>
+                <th>服务器名称</th>
+                <th>更新包</th>
+                <th>结果</th>
+                <th>时间</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.ChatLogs)
+            {
+                <tr>
+                    <td>@item.ServerName</td>
+                    <td>@item.PackageName</td>
+                    <td><span class="badge @(item.UpdateResult == 1 ? "badge-success" : "badge-danger")">@(item.UpdateResult == 1 ? "成功" : "失败")</span></td>
+                    <td>@item.CreateTime.ToString("yyyy-MM-dd HH:mm")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

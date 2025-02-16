@@ -1,0 +1,38 @@
+﻿@page
+@model maintaince_server_net.Pages.ChatServer.IndexModel
+@{
+    ViewData["Title"] = "聊天服管理";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-6">
+            <button id="btnNew" class="btn btn-primary">新建服务器</button>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="thead-light">
+            <tr>
+                <th>名称</th>
+                <th>链接</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.ChatServers)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Url</td>
+                    <td><span class="badge @(item.Status == "存活" ? "badge-success" : "badge-danger")">@item.Status</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-warning">编辑</button>
+                        <button class="btn btn-sm btn-danger">删除</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

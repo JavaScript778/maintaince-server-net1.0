@@ -1,0 +1,135 @@
+﻿@page
+@model maintaince_server_net.Pages.BaseServer.IndexModel
+@{
+    ViewData["Title"] = "基础服管理";
+}
+
+<div class="container-fluid">
+    <!-- 操作栏：查找、新建、批量操作 -->
+    <div class="row mb-3">
+        <div class="col-6">
+            <button id="btnNew" class="btn btn-primary">新建服务器</button>
+            <button id="btnBatchDelete" class="btn btn-danger">批量删除</button>
+            <button id="btnBatchUpdate" class="btn btn-warning">批量更新</button>
+        </div>
+        <div class="col-6 text-right">
+            <input type="text" id="txtSearch" placeholder="搜索服务器名称" class="form-control">
+        </div>
+    </div>
+
+    <!-- 数据表格 -->
+    <table class="table table-bordered table-hover">
+        <thead class="thead-light">
+            <tr>
+                <th><input type="checkbox" id="selectAll"></th>
+                <th>ID</th>
+                <th>名称</th>
+                <th>链接</th>
+                <th>状态</th>
+                <th>最后更新包</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="dataBody"></tbody>
+    </table>
+
+    <!-- 分页控件 -->
+    <div class="d-flex justify-content-between align-items-center">
+        <button id="btnPrev" class="btn btn-sm btn-outline-secondary"><< 上一页</button>
+        <span id="currentPage" class="text-muted">第 1 页</span>
+        <button id="btnNext" class="btn btn-sm btn-outline-secondary">下一页 >></button>
+    </div>
+</div>
+
+<!-- 新增/编辑弹窗 -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">服务器信息</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="serverForm">
+                    <input type="hidden" id="serverId">
+                    <div class="form-group">
+                        <label>名称</label>
+                        <input type="text" id="serverName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>链接</label>
+                        <input type="url" id="serverUrl" class="form-control" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="btnSave">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentPage = 1;
+
+        // 加载数据
+        function loadData(page) {
+            $.get(`/api/base_server/list/${page}`, function(res) {
+                $('#dataBody').empty();
+                res.data.forEach((item) => {
+                    $('#dataBody').append(`
+                        <tr data-id="${item.id}">
+                            <td><input type="checkbox"></td>
+                            <td>${item.id}</td>
+                            <td>${item.name}</td>
+                            <td>${item.url}</td>
+                            <td><span class="badge ${item.status === '存活' ? 'badge-success' : 'badge-danger'}">${item.status}</span></td>
+                            <td>${item.lastPackage || '无'}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info btn-log">日志</button>
+                                <button class="btn btn-sm btn-warning btn-update">更新</button>
+                                <button class="btn btn-sm btn-danger btn-delete">删除</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+                $('#currentPage').text(`第 ${page} 页`);
+            });
+        }
+
+        // 打开编辑弹窗
+        $('#btnNew').click(() => {
+            $('#serverForm')[0].reset();
+            $('#editModal').modal('show');
+        });
+
+        // 保存服务器信息
+        $('#btnSave').click(() => {
+            const server = {
+                Id: $('#serverId').val() || 0,
+                Name: $('#serverName').val(),
+                Url: $('#serverUrl').val()
+            };
+
+            $.ajax({
+                url: '/api/base_server/save',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(server),
+                success: () => {
+                    $('#editModal').modal('hide');
+                    loadData(currentPage);
+                }
+            });
+        });
+
+        // 翻页事件
+        $('#btnPrev').click(() => { if (currentPage > 1) loadData(--currentPage); });
+        $('#btnNext').click(() => loadData(++currentPage));
+
+        // 初始化加载
+        loadData(1);
+    </script>
+}

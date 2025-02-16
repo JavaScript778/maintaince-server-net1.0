@@ -1,0 +1,116 @@
+﻿@page
+@model maintaince_server_net.Pages.BaseZip.IndexModel
+@{
+    ViewData["Title"] = "基础服更新包管理";
+}
+
+<div class="container-fluid">
+    <!-- 操作栏：查找、新建 -->
+    <div class="row mb-3">
+        <div class="col-6">
+            <button id="btnNew" class="btn btn-primary">新建更新包</button>
+        </div>
+        <div class="col-6 text-right">
+            <input type="text" id="txtSearch" placeholder="搜索更新包名称" class="form-control">
+        </div>
+    </div>
+
+    <!-- 数据表格 -->
+    <table class="table table-bordered table-hover">
+        <thead class="thead-light">
+            <tr>
+                <th><input type="checkbox" id="selectAll"></th>
+                <th>序号</th>
+                <th>更新包名称</th>
+                <th>存储路径</th>
+                <th>创建时间</th>
+            </tr>
+        </thead>
+        <tbody id="dataBody"></tbody>
+    </table>
+
+    <!-- 分页控件 -->
+    <div class="d-flex justify-content-between align-items-center">
+        <button id="btnPrev" class="btn btn-sm btn-outline-secondary"><< 上一页</button>
+        <span id="currentPage" class="text-muted">第 1 页</span>
+        <button id="btnNext" class="btn btn-sm btn-outline-secondary">下一页 >></button>
+    </div>
+</div>
+
+<!-- 文件上传弹窗 -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">上传更新包</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>选择ZIP文件</label>
+                        <input type="file" name="file" class="form-control-file" accept=".zip" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="btnUpload">上传</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentPage = 1;
+
+        // 加载数据
+        function loadData(page) {
+            $.get(`/api/base_zip/list/${page}`, function(res) {
+                $('#dataBody').empty();
+                res.data.forEach((item, index) => {
+                    $('#dataBody').append(`
+                        <tr data-id="${item.id}">
+                            <td><input type="checkbox"></td>
+                            <td>${(page - 1) * 10 + index + 1}</td>
+                            <td>${item.packageName}</td>
+                            <td>${item.path}</td>
+                            <td>${new Date(item.createTime).toLocaleString()}</td>
+                        </tr>
+                    `);
+                });
+                $('#currentPage').text(`第 ${page} 页`);
+            });
+        }
+
+        // 打开上传弹窗
+        $('#btnNew').click(() => {
+            $('#uploadForm')[0].reset();
+            $('#uploadModal').modal('show');
+        });
+
+        // 提交上传
+        $('#btnUpload').click(() => {
+            const formData = new FormData($('#uploadForm')[0]);
+            $.ajax({
+                url: '/api/base_zip/save',
+                method: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: () => {
+                    $('#uploadModal').modal('hide');
+                    loadData(currentPage);
+                }
+            });
+        });
+
+        // 翻页事件
+        $('#btnPrev').click(() => { if (currentPage > 1) loadData(--currentPage); });
+        $('#btnNext').click(() => loadData(++currentPage));
+
+        // 初始化加载
+        loadData(1);
+    </script>
+}

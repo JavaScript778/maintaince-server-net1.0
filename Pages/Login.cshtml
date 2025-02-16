@@ -1,0 +1,33 @@
+﻿@page
+@model maintaince_server_net.Pages.LoginModel
+@{
+    ViewData["Title"] = "登录 - 运维管理系统";
+    Layout = null;  // 禁用布局
+}
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <h2 class="text-center">运维管理系统</h2>
+            <form method="post" asp-page-handler="Login">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" class="form-control" asp-for="Username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" class="form-control" asp-for="Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">登录</button>
+            </form>
+            @if (!string.IsNullOrEmpty(ViewData["ErrorMessage"]?.ToString()))
+            {
+                <div class="alert alert-danger mt-3">
+                    @ViewData["ErrorMessage"]
+                </div>
+            }
+        </div>
+    </div>
+</div>
